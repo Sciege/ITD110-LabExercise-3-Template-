@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Course Management System</title>
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body>
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h2>Management System</h2>
+      </div>
+      <ul class="sidebar-nav">
+        <li>
+          <a href="index.html"><span class="icon">&#128218;</span> Students</a>
+        </li>
+        <li>
+          <a href="faculty.html"><span class="icon">&#128100;</span> Faculty</a>
+        </li>
+        <li>
+          <a href="course.html" class="active"
+            ><span class="icon">&#128214;</span> Courses</a
+          >
+        </li>
+      </ul>
+    </aside>
+
+    <main class="main-content">
+      <div class="container">
+        <h1>Course Management System</h1>
+
+        <div class="form-container">
+          <h2 id="form-title">Add New Course</h2>
+          <form id="course-form">
+            <input type="hidden" id="course-id" />
+            <div class="form-group">
+              <label for="course-code">Course Code</label>
+              <input type="text" id="course-code" name="courseCode" required />
+            </div>
+            <div class="form-group">
+              <label for="course-name">Course Name</label>
+              <input type="text" id="course-name" name="courseName" required />
+            </div>
+            <div class="form-group">
+              <label for="description">Description</label>
+              <input type="text" id="description" name="description" />
+            </div>
+            <div class="form-group">
+              <label for="credits">Credits</label>
+              <input
+                type="number"
+                id="credits"
+                name="credits"
+                min="1"
+                max="10"
+              />
+            </div>
+            <div class="form-actions">
+              <button type="submit" id="submit-btn">Add Course</button>
+              <button type="button" id="cancel-btn" class="hidden">
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <div class="table-container">
+          <h2>Course List</h2>
+          <table id="course-table">
+            <thead>
+              <tr>
+                <th>Course Code</th>
+                <th>Course Name</th>
+                <th>Description</th>
+                <th>Credits</th>
+                <th>Enrolled Students</th>
+                <th>Teaching Faculty</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="course-tbody"></tbody>
+          </table>
+          <p id="no-courses" class="hidden">No courses found.</p>
+        </div>
+      </div>
+    </main>
+
+    <script src="js/course.js"></script>
+  </body>
+</html>

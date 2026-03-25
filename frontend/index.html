@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student Management System</title>
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body>
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h2>Management System</h2>
+      </div>
+      <ul class="sidebar-nav">
+        <li>
+          <a href="index.html" class="active"
+            ><span class="icon">&#128218;</span> Students</a
+          >
+        </li>
+        <li>
+          <a href="faculty.html"><span class="icon">&#128100;</span> Faculty</a>
+        </li>
+        <li>
+          <a href="course.html"><span class="icon">&#128214;</span> Courses</a>
+        </li>
+      </ul>
+    </aside>
+
+    <main class="main-content">
+      <div class="container">
+        <h1>Student Management System</h1>
+
+        <div class="form-container">
+          <h2 id="form-title">Add New Student</h2>
+          <form id="student-form">
+            <input type="hidden" id="student-id" />
+            <div class="form-group">
+              <label for="student-id-field">Student ID</label>
+              <input
+                type="text"
+                id="student-id-field"
+                name="studentId"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label for="name">Name</label>
+              <input type="text" id="name" name="name" required />
+            </div>
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input type="email" id="email" name="email" required />
+            </div>
+            <div class="form-group">
+              <label for="courses"
+                >Enrolled Courses (Hold Ctrl/Cmd to select multiple)</label
+              >
+              <select id="courses" name="courses" multiple></select>
+            </div>
+            <div class="form-actions">
+              <button type="submit" id="submit-btn">Add Student</button>
+              <button type="button" id="cancel-btn" class="hidden">
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <div class="table-container">
+          <h2>Student List</h2>
+          <table id="students-table">
+            <thead>
+              <tr>
+                <th>Student ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Courses</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="students-tbody"></tbody>
+          </table>
+          <p id="no-students" class="hidden">No students found.</p>
+        </div>
+      </div>
+    </main>
+
+    <script src="js/app.js"></script>
+  </body>
+</html>
