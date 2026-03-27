@@ -7,7 +7,8 @@ const {
   getDepartment,
   updateDepartment,
   deleteDepartment,
-} = require("controllers/departmentController");
+} = require("../controllers/departmentController");
+
 router.route("/").get(getAllDepartments).post(createDepartment);
 
 router
@@ -16,4 +17,5 @@ router
   .put(updateDepartment)
   .delete(deleteDepartment);
 
-module.express = router;
+module.exports = router;
+

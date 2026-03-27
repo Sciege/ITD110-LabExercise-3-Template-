@@ -1,4 +1,5 @@
 const API_URL = "http://localhost:5001/api/faculty";
+const DEPT_API_URL = "http://localhost:5001/api/departments";
 const COURSES_API_URL = "http://localhost:5001/api/courses";
 
 const form = document.getElementById("faculty-form");
@@ -8,7 +9,7 @@ const cancelBtn = document.getElementById("cancel-btn");
 const facultyIdInput = document.getElementById("faculty-id");
 const nameInput = document.getElementById("name");
 const addressInput = document.getElementById("address");
-const departmentInput = document.getElementById("department");
+const departmentSelect = document.getElementById("departmentId");
 const coursesSelect = document.getElementById("courses");
 const tbody = document.getElementById("faculty-tbody");
 const noFacultyMsg = document.getElementById("no-faculty");
@@ -17,14 +18,31 @@ let isEditing = false;
 let allCourses = [];
 
 document.addEventListener("DOMContentLoaded", async () => {
-  await fetchCoursesForSelect();
+  await fetchDepartments();
+  await fetchCourses();
   await fetchFaculties();
 });
 
 form.addEventListener("submit", handleSubmit);
 cancelBtn.addEventListener("click", resetForm);
 
-async function fetchCoursesForSelect() {
+async function fetchDepartments() {
+  try {
+    const response = await fetch(DEPT_API_URL);
+    const departments = await response.json();
+    departmentSelect.innerHTML = '<option value="">Select Department</option>';
+    departments.forEach((dept) => {
+      const option = document.createElement("option");
+      option.value = dept._id;
+      option.textContent = dept.name;
+      departmentSelect.appendChild(option);
+    });
+  } catch (error) {
+    console.error("Error fetching departments:", error);
+  }
+}
+
+async function fetchCourses() {
   try {
     const response = await fetch(COURSES_API_URL);
     allCourses = await response.json();
@@ -63,7 +81,7 @@ async function fetchFaculties() {
     const faculties = await response.json();
     renderFaculties(faculties);
   } catch (error) {
-    console.error("Error fetching faculty:", error);
+    console.error("Error fetching faculties:", error);
   }
 }
 
@@ -85,10 +103,17 @@ function renderFaculties(faculties) {
             .map((c) => escapeHtml(`${c.courseCode} - ${c.courseName}`))
             .join(", ")
         : "-";
+
+    const deptName = faculty.department
+      ? typeof faculty.department === "object"
+        ? faculty.department.name
+        : faculty.department
+      : "-";
+
     row.innerHTML = `
             <td>${escapeHtml(faculty.name)}</td>
             <td>${escapeHtml(faculty.address)}</td>
-            <td>${escapeHtml(faculty.department)}</td>
+            <td>${escapeHtml(deptName)}</td>
             <td>${courseNames}</td>
             <td>
                 <button class="btn-edit" onclick="editFaculty('${faculty._id}')">Edit</button>
@@ -111,7 +136,7 @@ async function handleSubmit(e) {
   const facultyData = {
     name: nameInput.value.trim(),
     address: addressInput.value.trim(),
-    department: departmentInput.value.trim(),
+    departmentId: departmentSelect.value || null,
     courses: getSelectedCourses(),
   };
 
@@ -131,7 +156,7 @@ async function handleSubmit(e) {
     }
 
     resetForm();
-    fetchFaculties();
+    await fetchFaculties();
   } catch (error) {
     console.error("Error saving faculty:", error);
   }
@@ -145,7 +170,11 @@ async function editFaculty(id) {
     facultyIdInput.value = faculty._id;
     nameInput.value = faculty.name;
     addressInput.value = faculty.address;
-    departmentInput.value = faculty.department;
+    departmentSelect.value = faculty.department
+      ? typeof faculty.department === "object"
+        ? faculty.department._id
+        : ""
+      : "";
 
     const courseIds = faculty.courses ? faculty.courses.map((c) => c._id) : [];
     populateCourseSelect(courseIds);
@@ -162,7 +191,7 @@ async function editFaculty(id) {
 }
 
 async function deleteFaculty(id) {
-  if (!confirm("Are you sure you want to delete this faculty member?")) {
+  if (!confirm("Are you sure you want to delete this faculty?")) {
     return;
   }
 

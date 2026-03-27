@@ -1,15 +1,22 @@
 const { getDriver } = require("../config/db");
 const { v4: uuidv4 } = require("uuid");
 
-// Helper to format faculty node with courses
+// Helper to format faculty node with courses and department
 const formatFaculty = (record) => {
   const node = record.get("f").properties;
   const courses = record.has("courses") ? record.get("courses") : [];
+  const department = record.has("department") ? record.get("department") : null;
+
   return {
     _id: node.id,
     name: node.name,
     address: node.address,
-    department: node.department,
+    department: department
+      ? {
+          _id: department.properties.id,
+          name: department.properties.name,
+        }
+      : node.department, // Fallback to string property if no relation
     courses: courses
       .filter((c) => c != null)
       .map((c) => ({
@@ -25,15 +32,17 @@ const formatFaculty = (record) => {
 const MATCH_FACULTY_FULL = `
     MATCH (f:Faculty)
     OPTIONAL MATCH (f)-[:TEACHES]->(c:Course)
-    WITH f, collect(DISTINCT c) AS courses
-    RETURN f, courses
+    OPTIONAL MATCH (f)-[:BELONGS_TO]->(d:Department)
+    WITH f, collect(DISTINCT c) AS courses, d AS department
+    RETURN f, courses, department
     ORDER BY f.createdAt DESC`;
 
 const MATCH_FACULTY_BY_ID = `
     MATCH (f:Faculty {id: $id})
     OPTIONAL MATCH (f)-[:TEACHES]->(c:Course)
-    WITH f, collect(DISTINCT c) AS courses
-    RETURN f, courses`;
+    OPTIONAL MATCH (f)-[:BELONGS_TO]->(d:Department)
+    WITH f, collect(DISTINCT c) AS courses, d AS department
+    RETURN f, courses, department`;
 
 // Get all faculty
 const getFaculties = async (req, res) => {
@@ -71,7 +80,7 @@ const getFaculty = async (req, res) => {
 const createFaculty = async (req, res) => {
   const session = getDriver().session();
   try {
-    const { name, address, department, courses } = req.body;
+    const { name, address, department, departmentId, courses } = req.body;
     const id = uuidv4();
     const now = new Date().toISOString();
 
@@ -84,8 +93,17 @@ const createFaculty = async (req, res) => {
                 createdAt: $now,
                 updatedAt: $now
             })`,
-      { id, name, address, department, now },
+      { id, name, address, department: department || "", now },
     );
+
+    // Create BELONGS_TO relationship if departmentId provided
+    if (departmentId) {
+      await session.run(
+        `MATCH (f:Faculty {id: $facultyId}), (d:Department {id: $departmentId})
+                 MERGE (f)-[:BELONGS_TO]->(d)`,
+        { facultyId: id, departmentId },
+      );
+    }
 
     // Create TEACHES relationships
     if (courses && courses.length > 0) {
@@ -111,7 +129,7 @@ const createFaculty = async (req, res) => {
 const updateFaculty = async (req, res) => {
   const session = getDriver().session();
   try {
-    const { name, address, department, courses } = req.body;
+    const { name, address, department, departmentId, courses } = req.body;
     const now = new Date().toISOString();
 
     const updateResult = await session.run(
@@ -121,11 +139,23 @@ const updateFaculty = async (req, res) => {
                  f.department = $department,
                  f.updatedAt = $now
              RETURN f`,
-      { id: req.params.id, name, address, department, now },
+      { id: req.params.id, name, address, department: department || "", now },
     );
 
     if (updateResult.records.length === 0) {
       return res.status(404).json({ message: "Faculty not found" });
+    }
+
+    // Update department relationship
+    await session.run(`MATCH (f:Faculty {id: $id})-[r:BELONGS_TO]->() DELETE r`, {
+      id: req.params.id,
+    });
+    if (departmentId) {
+      await session.run(
+        `MATCH (f:Faculty {id: $facultyId}), (d:Department {id: $departmentId})
+                 MERGE (f)-[:BELONGS_TO]->(d)`,
+        { facultyId: req.params.id, departmentId },
+      );
     }
 
     // Remove old TEACHES relationships and create new ones

@@ -23,6 +23,13 @@
         <li>
           <a href="course.html"><span class="icon">&#128214;</span> Courses</a>
         </li>
+        <li>
+          <a href="department.html"><span class="icon">&#127970;</span> Departments</a>
+        </li>
+        <li>
+          <a href="room.html"><span class="icon">&#128682;</span> Rooms</a>
+        </li>
+
       </ul>
     </aside>
 
@@ -52,6 +59,13 @@
               <input type="email" id="email" name="email" required />
             </div>
             <div class="form-group">
+              <label for="departmentId">Department</label>
+              <select id="departmentId" name="departmentId">
+                <option value="">Select Department</option>
+              </select>
+            </div>
+
+            <div class="form-group">
               <label for="courses"
                 >Enrolled Courses (Hold Ctrl/Cmd to select multiple)</label
               >
@@ -74,6 +88,7 @@
                 <th>Student ID</th>
                 <th>Name</th>
                 <th>Email</th>
+                <th>Department</th>
                 <th>Courses</th>
                 <th>Actions</th>
               </tr>

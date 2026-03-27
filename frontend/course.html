@@ -19,10 +19,15 @@
           <a href="faculty.html"><span class="icon">&#128100;</span> Faculty</a>
         </li>
         <li>
-          <a href="course.html" class="active"
-            ><span class="icon">&#128214;</span> Courses</a
-          >
+          <a href="course.html" class="active"><span class="icon">&#128214;</span> Courses</a>
         </li>
+        <li>
+          <a href="department.html"><span class="icon">&#127970;</span> Departments</a>
+        </li>
+        <li>
+          <a href="room.html"><span class="icon">&#128682;</span> Rooms</a>
+        </li>
+
       </ul>
     </aside>
 
@@ -56,6 +61,19 @@
                 max="10"
               />
             </div>
+            <div class="form-group">
+              <label for="departmentId">Department</label>
+              <select id="departmentId" name="departmentId">
+                <option value="">Select Department</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="roomId">Room</label>
+              <select id="roomId" name="roomId">
+                <option value="">Select Room</option>
+              </select>
+            </div>
+
             <div class="form-actions">
               <button type="submit" id="submit-btn">Add Course</button>
               <button type="button" id="cancel-btn" class="hidden">
@@ -74,8 +92,11 @@
                 <th>Course Name</th>
                 <th>Description</th>
                 <th>Credits</th>
+                <th>Department</th>
+                <th>Room</th>
                 <th>Enrolled Students</th>
                 <th>Teaching Faculty</th>
+
                 <th>Actions</th>
               </tr>
             </thead>

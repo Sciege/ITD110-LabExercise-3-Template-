@@ -1,4 +1,6 @@
 const API_URL = "http://localhost:5001/api/courses";
+const DEPT_API_URL = "http://localhost:5001/api/departments";
+const ROOM_API_URL = "http://localhost:5001/api/rooms";
 
 const form = document.getElementById("course-form");
 const formTitle = document.getElementById("form-title");
@@ -9,15 +11,53 @@ const courseCodeInput = document.getElementById("course-code");
 const courseNameInput = document.getElementById("course-name");
 const descriptionInput = document.getElementById("description");
 const creditsInput = document.getElementById("credits");
+const departmentSelect = document.getElementById("departmentId");
+const roomSelect = document.getElementById("roomId");
 const tbody = document.getElementById("course-tbody");
 const noCoursesMsg = document.getElementById("no-courses");
 
 let isEditing = false;
 
-document.addEventListener("DOMContentLoaded", fetchCourses);
+document.addEventListener("DOMContentLoaded", async () => {
+  await fetchDepartments();
+  await fetchRooms();
+  await fetchCourses();
+});
 
 form.addEventListener("submit", handleSubmit);
 cancelBtn.addEventListener("click", resetForm);
+
+async function fetchDepartments() {
+  try {
+    const response = await fetch(DEPT_API_URL);
+    const departments = await response.json();
+    departmentSelect.innerHTML = '<option value="">Select Department</option>';
+    departments.forEach((dept) => {
+      const option = document.createElement("option");
+      option.value = dept._id;
+      option.textContent = dept.name;
+      departmentSelect.appendChild(option);
+    });
+  } catch (error) {
+    console.error("Error fetching departments:", error);
+  }
+}
+
+async function fetchRooms() {
+  try {
+    const response = await fetch(ROOM_API_URL);
+    const rooms = await response.json();
+    roomSelect.innerHTML = '<option value="">Select Room</option>';
+    rooms.forEach((room) => {
+      const option = document.createElement("option");
+      option.value = room._id;
+      option.textContent = room.name;
+      roomSelect.appendChild(option);
+    });
+  } catch (error) {
+    console.error("Error fetching rooms:", error);
+  }
+}
 
 async function fetchCourses() {
   try {
@@ -54,8 +94,10 @@ function renderCourses(courses) {
     row.innerHTML = `
             <td>${escapeHtml(course.courseCode)}</td>
             <td>${escapeHtml(course.courseName)}</td>
-            <td>${escapeHtml(course.description || "-")}</td>
+            <td class="col-description">${escapeHtml(course.description || "-")}</td>
             <td>${course.credits ?? "-"}</td>
+            <td>${course.department ? escapeHtml(course.department.name) : "-"}</td>
+            <td>${course.room ? escapeHtml(course.room.name) : "-"}</td>
             <td>${studentNames}</td>
             <td>${facultyNames}</td>
             <td>
@@ -81,6 +123,8 @@ async function handleSubmit(e) {
     courseName: courseNameInput.value.trim(),
     description: descriptionInput.value.trim(),
     credits: creditsInput.value ? Number(creditsInput.value) : null,
+    departmentId: departmentSelect.value || null,
+    roomId: roomSelect.value || null,
   };
 
   try {
@@ -99,7 +143,7 @@ async function handleSubmit(e) {
     }
 
     resetForm();
-    fetchCourses();
+    await fetchCourses();
   } catch (error) {
     console.error("Error saving course:", error);
   }
@@ -115,6 +159,8 @@ async function editCourse(id) {
     courseNameInput.value = course.courseName;
     descriptionInput.value = course.description || "";
     creditsInput.value = course.credits ?? "";
+    departmentSelect.value = course.department ? course.department._id : "";
+    roomSelect.value = course.room ? course.room._id : "";
 
     isEditing = true;
     formTitle.textContent = "Edit Course";

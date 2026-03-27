@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Room Management System</title>
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body>
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h2>Management System</h2>
+      </div>
+      <ul class="sidebar-nav">
+        <li>
+          <a href="index.html"><span class="icon">&#128218;</span> Students</a>
+        </li>
+        <li>
+          <a href="faculty.html"><span class="icon">&#128100;</span> Faculty</a>
+        </li>
+        <li>
+          <a href="course.html"><span class="icon">&#128214;</span> Courses</a>
+        </li>
+        <li>
+          <a href="department.html"><span class="icon">&#127970;</span> Departments</a>
+        </li>
+        <li>
+          <a href="room.html" class="active"><span class="icon">&#128682;</span> Rooms</a>
+        </li>
+      </ul>
+    </aside>
+
+    <main class="main-content">
+      <div class="container">
+        <h1>Room Management System</h1>
+
+        <div class="form-container">
+          <h2 id="form-title">Add New Room</h2>
+          <form id="room-form">
+            <input type="hidden" id="room-id" />
+            <div class="form-group">
+              <label for="name">Room Name</label>
+              <input type="text" id="name" name="name" required />
+            </div>
+            <div class="form-group">
+              <label for="type">Room Type</label>
+              <select id="type" name="type">
+                <option value="General">General</option>
+                <option value="Laboratory">Laboratory</option>
+                <option value="Lecture Hall">Lecture Hall</option>
+                <option value="Computer Lab">Computer Lab</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="capacity">Capacity</label>
+              <input type="number" id="capacity" name="capacity" min="1" />
+            </div>
+            <div class="form-actions">
+              <button type="submit" id="submit-btn">Add Room</button>
+              <button type="button" id="cancel-btn" class="hidden">
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <div class="table-container">
+          <h2>Room List</h2>
+          <table id="room-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Capacity (Available / Total)</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="room-tbody"></tbody>
+          </table>
+          <p id="no-rooms" class="hidden">No rooms found.</p>
+        </div>
+      </div>
+    </main>
+
+    <script src="js/room.js"></script>
+  </body>
+</html>
