@@ -1,4 +1,5 @@
 const API_URL = "http://localhost:5001/api/students";
+const DEPT_API_URL = "http://localhost:5001/api/departments";
 const COURSES_API_URL = "http://localhost:5001/api/courses";
 
 const form = document.getElementById("student-form");
@@ -9,6 +10,7 @@ const studentIdInput = document.getElementById("student-id");
 const studentIdFieldInput = document.getElementById("student-id-field");
 const nameInput = document.getElementById("name");
 const emailInput = document.getElementById("email");
+const departmentSelect = document.getElementById("departmentId");
 const coursesSelect = document.getElementById("courses");
 const tbody = document.getElementById("students-tbody");
 const noStudentsMsg = document.getElementById("no-students");
@@ -17,12 +19,29 @@ let isEditing = false;
 let allCourses = [];
 
 document.addEventListener("DOMContentLoaded", async () => {
+  await fetchDepartments();
   await fetchCourses();
   await fetchStudents();
 });
 
 form.addEventListener("submit", handleSubmit);
 cancelBtn.addEventListener("click", resetForm);
+
+async function fetchDepartments() {
+  try {
+    const response = await fetch(DEPT_API_URL);
+    const departments = await response.json();
+    departmentSelect.innerHTML = '<option value="">Select Department</option>';
+    departments.forEach((dept) => {
+      const option = document.createElement("option");
+      option.value = dept._id;
+      option.textContent = dept.name;
+      departmentSelect.appendChild(option);
+    });
+  } catch (error) {
+    console.error("Error fetching departments:", error);
+  }
+}
 
 async function fetchCourses() {
   try {
@@ -89,6 +108,7 @@ function renderStudents(students) {
             <td>${escapeHtml(student.studentId || "-")}</td>
             <td>${escapeHtml(student.name)}</td>
             <td>${escapeHtml(student.email)}</td>
+            <td>${student.department ? escapeHtml(student.department.name) : "-"}</td>
             <td>${courseNames}</td>
             <td>
                 <button class="btn-edit" onclick="editStudent('${student._id}')">Edit</button>
@@ -112,6 +132,7 @@ async function handleSubmit(e) {
     studentId: studentIdFieldInput.value.trim(),
     name: nameInput.value.trim(),
     email: emailInput.value.trim(),
+    departmentId: departmentSelect.value || null,
     courses: getSelectedCourses(),
   };
 
@@ -131,7 +152,7 @@ async function handleSubmit(e) {
     }
 
     resetForm();
-    fetchStudents();
+    await fetchStudents();
   } catch (error) {
     console.error("Error saving student:", error);
   }
@@ -146,6 +167,7 @@ async function editStudent(id) {
     studentIdFieldInput.value = student.studentId || "";
     nameInput.value = student.name;
     emailInput.value = student.email;
+    departmentSelect.value = student.department ? student.department._id : "";
 
     const courseIds = student.courses ? student.courses.map((c) => c._id) : [];
     populateCourseSelect(courseIds);
